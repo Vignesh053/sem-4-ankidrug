@@ -1,0 +1,5 @@
+{
+  "name": "AnkiDrug Review",
+  "description": "A spaced-repetition flashcard app designed for memorizing drug generic and brand names via PDF import.",
+  "requestFramePermissions": []
+}
