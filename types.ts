@@ -6,8 +6,11 @@ export interface Card {
   notes: string;
   tags: string[];
   
-  // SRS Fields
-  dueDate: number; // Timestamp
+  // Persistent Stats
+  difficultyScore: number; // Increments on Again/Hard, used for leech weighting
+  
+  // SRS Fields (Legacy support, but primarily using session scheduler now)
+  dueDate: number; 
   intervalDays: number;
   easeFactor: number;
   repetitions: number;
@@ -31,29 +34,33 @@ export enum Grade {
   Easy = 4
 }
 
-export interface SRSSettings {
+export interface AppSettings {
+  darkMode: boolean;
+  learningSteps: number[];
   newCardsPerDay: number;
   reviewsPerDay: number;
-  learningSteps: number[]; // Minutes, e.g. [1, 10]
-  initialEaseFactor: number; // Default 2.5
-  easyBonus: number; // Multiplier, e.g. 1.3
-}
-
-export interface AppSettings extends SRSSettings {
-  darkMode: boolean;
+  initialEaseFactor: number;
+  easyBonus: number;
 }
 
 export type StudyMode = 'generic_to_brand' | 'brand_to_generic' | 'mixed';
-
-export interface ParseResult {
-  generic: string;
-  brand: string;
-}
 
 export interface ReviewLog {
   cardId: string;
   grade: Grade;
   studiedAt: number;
-  previousInterval: number;
-  newInterval: number;
+}
+
+// Ephemeral Session State per Card
+export interface SessionCard extends Card {
+  sessionState: 'unseen' | 'active' | 'easyPool';
+  sessionDueTime: number; // Timestamp when it can be shown again
+  sessionConfident: boolean;
+  sessionGoodStreak: number;
+  lastShownAt: number;
+}
+
+export interface ParseResult {
+  generic: string;
+  brand: string;
 }

@@ -1,22 +1,29 @@
 import { AppSettings } from './types';
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  darkMode: false,
+  learningSteps: [1, 10],
   newCardsPerDay: 20,
-  reviewsPerDay: 100,
-  learningSteps: [1, 10], // 1 min, 10 min
+  reviewsPerDay: 200,
   initialEaseFactor: 2.5,
   easyBonus: 1.3,
-  darkMode: false,
 };
+
+export const DB_NAME = 'AnkiDrugDB';
+export const DB_VERSION = 3; // Bump version for difficultyScore
+
+export const HAMILTON_DECK_ID = 'deck_hamilton_v1';
+export const CARDIO_DECK_ID = 'deck_cardio_v1';
 
 export const MIN_EASE_FACTOR = 1.3;
 
-export const DB_NAME = 'AnkiDrugDB';
-export const DB_VERSION = 2;
-
-// Fixed IDs to prevent duplicates and allow updates
-export const HAMILTON_DECK_ID = 'deck_hamilton_v1';
-export const CARDIO_DECK_ID = 'deck_cardio_v1';
+// Fixed Learning Intervals (ms)
+export const INTERVALS = {
+  AGAIN: 1 * 60 * 1000,      // 1 min
+  HARD: 3 * 60 * 1000,       // 3 min
+  GOOD: 15 * 60 * 1000,      // 15 min
+  EASY: 60 * 60 * 1000,      // 1 hour
+};
 
 export const COLORS = {
   again: 'bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700',
@@ -25,6 +32,7 @@ export const COLORS = {
   easy: 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700',
 };
 
+// Data (Keep existing data)
 export const HAMILTON_DATA = [
   { generic: "acetaminophen", brand: "Tylenol" },
   { generic: "acetylsalicylic acid", brand: "Aspirin" },
