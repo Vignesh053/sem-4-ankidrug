@@ -3,8 +3,8 @@ import { AppSettings } from './types';
 export const DEFAULT_SETTINGS: AppSettings = {
   darkMode: false,
   learningSteps: [1, 10],
-  newCardsPerDay: 20,
-  reviewsPerDay: 200,
+  newCardsPerDay: 999,
+  reviewsPerDay: 999,
   initialEaseFactor: 2.5,
   easyBonus: 1.3,
 };

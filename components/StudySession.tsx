@@ -280,9 +280,9 @@ export const StudySession: React.FC<Props> = ({ deck, mode, onExit }) => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex flex-col h-[100dvh] bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
       {/* Top Bar */}
-      <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-sm z-10">
+      <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-sm z-10 shrink-0">
         <div className="flex gap-3 items-center">
             <button onClick={onExit} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white font-medium">←</button>
             <span className="font-bold text-gray-700 dark:text-gray-200 truncate max-w-[150px]">{deck.name}</span>
@@ -291,16 +291,16 @@ export const StudySession: React.FC<Props> = ({ deck, mode, onExit }) => {
       </div>
 
       {/* Status Bar */}
-      <div className="bg-blue-50 dark:bg-gray-800/50 py-2 px-4 flex justify-around text-xs font-mono font-bold text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
+      <div className="bg-blue-50 dark:bg-gray-800/50 py-2 px-4 flex justify-around text-xs font-mono font-bold text-gray-500 dark:text-gray-400 border-b dark:border-gray-700 shrink-0">
         <span className="text-blue-600 dark:text-blue-400">BATCH: {sessionStats.active}/10</span>
         <span className="text-green-600 dark:text-green-400">DONE: {sessionStats.confident}</span>
         <span>LEFT: {sessionStats.unseen}</span>
       </div>
 
-      {/* Card Area */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden relative">
+      {/* Card Area - Flexbox magic for mobile: min-h-0 allows shrinking */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden relative min-h-0">
         <div 
-          className="relative w-full max-w-md aspect-[4/5] md:aspect-video max-h-[500px]"
+          className="relative w-full max-w-md h-full max-h-[60vh] md:max-h-[500px] md:h-auto md:aspect-video"
           onClick={() => !isFlipped && setIsFlipped(true)}
         >
             <div className={`w-full h-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-8 text-center border border-gray-100 dark:border-gray-700 transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`}>
@@ -335,8 +335,8 @@ export const StudySession: React.FC<Props> = ({ deck, mode, onExit }) => {
         )}
       </div>
 
-      {/* Controls */}
-      <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 pb-8">
+      {/* Controls - Compact bottom padding */}
+      <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 pb-4 shrink-0">
         {!isFlipped ? (
              <button 
              onClick={() => { setIsFlipped(true); }}
