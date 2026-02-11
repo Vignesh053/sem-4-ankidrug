@@ -3,13 +3,14 @@ export interface Card {
   deckId: string;
   generic: string;
   brand: string;
+  classification: string; // NEW field
   notes: string;
   tags: string[];
   
   // Persistent Stats
-  difficultyScore: number; // Increments on Again/Hard, used for leech weighting
+  difficultyScore: number; 
   
-  // SRS Fields (Legacy support, but primarily using session scheduler now)
+  // SRS Fields
   dueDate: number; 
   intervalDays: number;
   easeFactor: number;
@@ -54,7 +55,7 @@ export interface ReviewLog {
 // Ephemeral Session State per Card
 export interface SessionCard extends Card {
   sessionState: 'unseen' | 'active' | 'easyPool';
-  sessionDueTime: number; // Timestamp when it can be shown again
+  sessionDueTime: number; 
   sessionConfident: boolean;
   sessionGoodStreak: number;
   lastShownAt: number;
@@ -63,4 +64,5 @@ export interface SessionCard extends Card {
 export interface ParseResult {
   generic: string;
   brand: string;
+  classification: string;
 }

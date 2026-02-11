@@ -37,24 +37,18 @@ export const initDB = () => {
   if (!dbPromise) {
     dbPromise = openDB<AppDB>(DB_NAME, DB_VERSION, {
       upgrade(db, oldVersion, newVersion, transaction) {
-        // Decks Store
         if (!db.objectStoreNames.contains('decks')) {
           db.createObjectStore('decks', { keyPath: 'id' });
         }
-        // Cards Store
         if (!db.objectStoreNames.contains('cards')) {
           const cardStore = db.createObjectStore('cards', { keyPath: 'id' });
           cardStore.createIndex('by-deck', 'deckId');
-        } else {
-           // Version 2->3 upgrade logic if needed, but for now simple structure is fine
         }
-        // Logs Store
         if (!db.objectStoreNames.contains('logs')) {
           const logStore = db.createObjectStore('logs', { keyPath: 'studiedAt', autoIncrement: true });
           logStore.createIndex('by-card', 'cardId');
           logStore.createIndex('by-date', 'studiedAt');
         }
-        // Settings Store
         if (!db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings');
         }
@@ -97,38 +91,35 @@ export const dbService = {
      const deckStore = tx.objectStore('decks');
      const cardStore = tx.objectStore('cards');
 
-     // Sync Preloaded Definitions
      for (const p of preloaded) {
-        // Ensure Deck Exists
         const existingDeck = await deckStore.get(p.id);
         if (!existingDeck) {
             await deckStore.put({ id: p.id, name: p.name, createdAt: Date.now() });
         }
 
-        // Sync Cards
         for (let i = 0; i < p.data.length; i++) {
            const pair = p.data[i];
-           const stableId = `card_${p.id}_${i}`; // Deterministic ID
+           const stableId = `card_${p.id}_${i}`;
            
            const existingCard = await cardStore.get(stableId);
            
            if (existingCard) {
-             // Update text content only
-             if (existingCard.generic !== pair.generic || existingCard.brand !== pair.brand) {
+             if (existingCard.generic !== pair.generic || existingCard.brand !== pair.brand || existingCard.classification !== (pair as any).classification) {
                  await cardStore.put({
                    ...existingCard,
                    generic: pair.generic,
                    brand: pair.brand,
+                   classification: (pair as any).classification || 'N/A',
                    updatedAt: Date.now()
                  });
              }
            } else {
-             // Create new card
              await cardStore.put({
                 id: stableId,
                 deckId: p.id,
                 generic: pair.generic,
                 brand: pair.brand,
+                classification: (pair as any).classification || 'N/A',
                 notes: '',
                 tags: [],
                 dueDate: Date.now(),
@@ -137,14 +128,13 @@ export const dbService = {
                 repetitions: 0,
                 lapses: 0,
                 state: 'new',
-                difficultyScore: 0, // NEW field
+                difficultyScore: 0,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
              });
            }
         }
      }
-     
      await tx.done;
   },
 

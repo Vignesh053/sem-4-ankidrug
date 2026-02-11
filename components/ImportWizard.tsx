@@ -1,8 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { extractTextFromPdf, parseLinesToPairs } from '../services/pdfParser';
 import { ParseResult, Deck, Card } from '../types';
 import { dbService } from '../services/db';
-import { v4 as uuidv4 } from 'uuid'; // We'll implement a simple uuid polyfill if needed, but lets assume simple math random for simplicity or valid UUID if package allowed. Since user said "no made up libraries", I will use simple random ID generator below.
 
 const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
@@ -42,7 +41,7 @@ export const ImportWizard: React.FC<Props> = ({ onComplete, onCancel }) => {
     }
   };
 
-  const handleUpdatePair = (index: number, field: 'generic' | 'brand', value: string) => {
+  const handleUpdatePair = (index: number, field: keyof ParseResult, value: string) => {
     const newPairs = [...parsedPairs];
     newPairs[index] = { ...newPairs[index], [field]: value };
     setParsedPairs(newPairs);
@@ -74,14 +73,16 @@ export const ImportWizard: React.FC<Props> = ({ onComplete, onCancel }) => {
         deckId: deckId,
         generic: p.generic,
         brand: p.brand,
+        classification: p.classification,
         notes: '',
         tags: [],
-        dueDate: Date.now(), // Due immediately
+        dueDate: Date.now(),
         intervalDays: 0,
         easeFactor: 2.5,
         repetitions: 0,
         lapses: 0,
         state: 'new',
+        difficultyScore: 0,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       }));
@@ -107,7 +108,7 @@ export const ImportWizard: React.FC<Props> = ({ onComplete, onCancel }) => {
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center hover:bg-gray-50 transition-colors">
             <label className="cursor-pointer">
                 <span className="block text-gray-600 font-medium mb-2">Click to Upload PDF</span>
-                <span className="text-sm text-gray-400">Supported format: "Generic Name [spaces] Brand Name"</span>
+                <span className="text-sm text-gray-400">Layout: "Generic [space] Brand [space] Class"</span>
                 <input 
                     type="file" 
                     accept="application/pdf" 
@@ -125,7 +126,7 @@ export const ImportWizard: React.FC<Props> = ({ onComplete, onCancel }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-md flex flex-col h-[80vh]">
+    <div className="max-w-5xl mx-auto p-4 bg-white rounded-xl shadow-md flex flex-col h-[85vh]">
       <div className="flex justify-between items-center mb-4 border-b pb-4">
         <div>
             <h2 className="text-2xl font-bold text-gray-800">Review Flashcards</h2>
@@ -153,8 +154,9 @@ export const ImportWizard: React.FC<Props> = ({ onComplete, onCancel }) => {
         <table className="w-full text-left border-collapse">
             <thead className="bg-gray-100 sticky top-0 z-10 shadow-sm">
                 <tr>
-                    <th className="p-3 font-semibold text-gray-600 w-5/12">Generic Name</th>
-                    <th className="p-3 font-semibold text-gray-600 w-5/12">Brand Name</th>
+                    <th className="p-3 font-semibold text-gray-600 w-3/12">Generic Name</th>
+                    <th className="p-3 font-semibold text-gray-600 w-3/12">Brand Name</th>
+                    <th className="p-3 font-semibold text-gray-600 w-4/12">Classification</th>
                     <th className="p-3 font-semibold text-gray-600 w-2/12 text-center">Action</th>
                 </tr>
             </thead>
@@ -175,11 +177,17 @@ export const ImportWizard: React.FC<Props> = ({ onComplete, onCancel }) => {
                                 onChange={(e) => handleUpdatePair(idx, 'brand', e.target.value)}
                             />
                         </td>
+                        <td className="p-2">
+                             <input 
+                                className="w-full bg-transparent p-1 focus:bg-white focus:ring-1 focus:ring-blue-400 rounded"
+                                value={pair.classification}
+                                onChange={(e) => handleUpdatePair(idx, 'classification', e.target.value)}
+                            />
+                        </td>
                         <td className="p-2 text-center">
                             <button 
                                 onClick={() => handleDeletePair(idx)}
                                 className="text-red-400 hover:text-red-600 p-1"
-                                title="Delete row"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
